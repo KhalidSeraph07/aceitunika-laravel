@@ -1,66 +1,140 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Aceitunika v2 — Laravel Edition
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Migración del sistema aceitunika v2 (Next.js + PostgreSQL) a Laravel 12 + Blade + Livewire + MySQL 8.4.
 
-## About Laravel
+## Estado
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+🚧 **Foundation** — sub-proyecto inicial con esqueleto, auth, RBAC, UI shell y patrones cross-cutting. Los 8 módulos de negocio se entregan en sub-proyectos posteriores.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend:** Laravel 12 (PHP 8.3)
+- **Frontend:** Blade + Livewire 3 + TailwindCSS v4
+- **DB:** MySQL 8.4 LTS
+- **Auth:** Breeze + Spatie Permission v8
+- **Auditoría:** Spatie ActivityLog v4
+- **Tests:** Pest 3 + Dusk (corren en CI)
+- **CI:** GitHub Actions
 
-## Learning Laravel
+## Setup local
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Requisitos
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP 8.3+
+- Composer 2.5+
+- Node 20+
+- MySQL 8.4 LTS
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Pasos
 
-## Laravel Sponsors
+```bash
+# 1. Clonar
+git clone https://github.com/KhalidSeraph07/aceitunika-laravel.git
+cd aceitunika-laravel
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 2. Instalar dependencias
+composer install
+npm install
 
-### Premium Partners
+# 3. Configurar .env
+cp .env.example .env
+php artisan key:generate
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# 4. Crear DB y usuario MySQL
+mysql -u root -p
+> CREATE DATABASE aceitunika_v3 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+> CREATE USER 'aceitunika_laravel'@'localhost' IDENTIFIED BY '123456';
+> GRANT ALL ON aceitunika_v3.* TO 'aceitunika_laravel'@'localhost';
 
-## Contributing
+# 5. Editar .env con credenciales
+# DB_DATABASE=aceitunika_v3
+# DB_USERNAME=aceitunika_laravel
+# DB_PASSWORD=123456
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 6. Migrar y seedear
+php artisan migrate:fresh --seed
 
-## Code of Conduct
+# 7. Build assets
+npm run build
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 8. Servir
+php artisan serve
+# -> http://127.0.0.1:8000
+```
 
-## Security Vulnerabilities
+## Login inicial
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **Email:** `admin@aceitunika.test`
+- **Password:** `Admin123!`
 
-## License
+⚠️ Esta password es solo para desarrollo local. En producción, generar una nueva y guardar en `DB_PASSWORD` de un secret manager.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Tests
+
+```bash
+# Unit + Feature (42 tests)
+./vendor/bin/pest
+
+# E2E con Dusk (corre en CI; local puede requerir ChromeDriver)
+php artisan dusk:chrome-driver
+php artisan serve &
+php artisan dusk
+```
+
+## Estructura
+
+```
+aceitunika-laravel/
+├── app/
+│   ├── Actions/             # Single-purpose action classes
+│   ├── DTOs/                # Data Transfer Objects
+│   ├── ValueObjects/        # Kilos, Calibre
+│   ├── Models/              # Eloquent (User + 11 catalogos)
+│   ├── Http/
+│   │   ├── Middleware/      # FinancialMask
+│   │   └── Requests/        # Form Requests
+│   ├── Support/             # FinancialMask, DateHelper, Exceptions
+│   ├── Rules/               # 4 custom validation rules
+│   ├── Etl/                 # ETL script classes
+│   └── Console/Commands/    # EtlMigrateCommand
+├── database/
+│   ├── migrations/          # Breeze + Spatie + 11 catalog tables
+│   ├── seeders/             # Roles, AdminUser, Catalogs
+│   └── factories/
+├── resources/
+│   ├── views/
+│   │   ├── layouts/         # app, guest
+│   │   ├── components/      # 8 shared Blade components
+│   │   ├── livewire/        # Breeze auth pages
+│   │   └── modules/         # 8 module placeholders
+│   └── css/
+├── routes/                  # web + auth
+├── tests/
+│   ├── Unit/                # 28 unit tests
+│   ├── Feature/             # 14 feature tests
+│   └── Browser/             # 5 Dusk tests (run in CI)
+├── scripts/etl/             # ETL reference docs
+├── .github/workflows/ci.yml # GitHub Actions
+└── .env.example
+```
+
+## Roadmap
+
+Sub-proyectos planeados (en orden recomendado):
+
+1. ✅ `foundation` (este repo)
+2. ⏭️ `auth-module-2` — gestión de usuarios desde UI
+3. ⏭️ `insumos-module`
+4. ⏭️ `prestamos-module`
+5. ⏭️ `ventas-module`
+6. ⏭️ `historial-module`
+7. ⏭️ `entradas-module` (crítico)
+8. ⏭️ `almacen-module`
+9. ⏭️ `curado-module`
+10. ⏭️ `dashboard-module`
+11. ⏭️ `reportes-module`
+12. ⏭️ `cutover-etl` — implementación completa del ETL
+
+## Licencia
+
+Propietario — Corporación Costa Verde.
